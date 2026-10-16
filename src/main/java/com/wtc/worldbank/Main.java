@@ -13,9 +13,11 @@ public class Main {
         try (Connection conn = Database.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT version()")) {
-            // TODO: call rs.next(), then print rs.getString(1)
+            if (rs.next()) {
+                System.out.println(rs.getString(1));
+            }
         } catch (SQLException e) {
-            // TODO: print a readable error using e.getMessage()
+            System.err.println("Database error: " + e.getMessage());
         }
     }
 }
