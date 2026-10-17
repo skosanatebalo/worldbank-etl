@@ -9,6 +9,7 @@ import java.sql.Statement;
 import com.wtc.worldbank.extract.WorldBankClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.wtc.worldbank.extract.IndicatorExtractor;
 public class Main {
 
     public static void main(String[] args) throws Exception{
@@ -22,9 +23,10 @@ public class Main {
             System.err.println("Database error: " + e.getMessage());
         }
         WorldBankClient client = new WorldBankClient();
-        String json = client.get("https://api.worldbank.org/v2/country?format=json&per_page=400");
-        Files.createDirectories(Path.of("raw"));
-        Files.writeString(Path.of("raw/countries.json"), json);
-        System.out.println("Saved " + json.length() + " characters to raw/countries.json");
+        IndicatorExtractor extractor = new IndicatorExtractor(client, Path.of("raw"));
+
+        for (String indicator : new String[] {"NY.GDP.MKTP.CD", "SP.POP.TOTL", "SL.UEM.TOTL.ZS"}) {
+            extractor.extract(indicator, 2015, 2023);
+        }
     }
 }
