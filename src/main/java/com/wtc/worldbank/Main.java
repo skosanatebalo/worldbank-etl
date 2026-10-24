@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import com.wtc.worldbank.load.WarehouseLoader;
+import com.wtc.worldbank.load.WarehouseSchema;
 
 public class Main {
 
@@ -43,12 +45,16 @@ public class Main {
             loader.loadCountries(conn, Path.of("raw/countries.json"));
         }
 
-        // Stage 3: transform and validate
+
         try (Connection conn = Database.getConnection()) {
             TransformRunner.Output out = new TransformRunner().run(conn);
             System.out.println("Valid countries: " + out.countries().size());
             System.out.println("Valid observations: " + out.observations().size());
             System.out.println("Rejected rows: " + out.rejectedCount());
+
+            WarehouseSchema.create(conn);
+            new WarehouseLoader().load(conn, out.countries(), out.observations());
+            System.out.println("Loaded into countries, indicators and observations.");
         }
     }
 }
