@@ -33,6 +33,15 @@ public class StagingSchema {
                     loaded_at     TIMESTAMP DEFAULT now()
                 )
                 """);
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS rejected_rows (
+                    id            SERIAL PRIMARY KEY,
+                    source_table  TEXT,
+                    row_key       TEXT,
+                    reason        TEXT,
+                    rejected_at   TIMESTAMP DEFAULT now()
+                )
+                """);
         }
     }
 }
