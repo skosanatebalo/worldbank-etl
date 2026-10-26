@@ -8,6 +8,7 @@ import com.wtc.worldbank.load.StagingLoader;
 import com.wtc.worldbank.load.StagingSchema;
 import com.wtc.worldbank.load.WarehouseLoader;
 import com.wtc.worldbank.load.WarehouseSchema;
+import com.wtc.worldbank.transform.DataQualityChecker;
 import com.wtc.worldbank.transform.TransformRunner;
 
 import java.nio.file.Path;
@@ -22,8 +23,6 @@ public class Pipeline {
     public void run() throws Exception {
         RunTracker tracker = new RunTracker();
 
-        // A separate connection for tracking, so the run is recorded
-        // even when the main work rolls back.
         try (Connection tracking = Database.getConnection()) {
             RunTracker.createTable(tracking);
             long runId = tracker.start(tracking);
@@ -51,6 +50,9 @@ public class Pipeline {
                     LOG.info("Loading final tables");
                     WarehouseSchema.create(work);
                     new WarehouseLoader().load(work, out.countries(), out.observations());
+
+                    LOG.info("Running data quality checks");
+                    new DataQualityChecker().runAll(work);
 
                     tracker.success(tracking, runId,
                             out.countries().size(), out.observations().size(), out.rejectedCount());
