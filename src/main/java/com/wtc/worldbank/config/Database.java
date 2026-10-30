@@ -7,18 +7,14 @@ import java.sql.SQLException;
 public class Database {
 
     private static final String DEFAULT_URL = "jdbc:postgresql://localhost:5432/worldbank";
-    private static final String DEFAULT_USER = "etl";
-    private static final String DEFAULT_PASSWORD = "etl_pass";
+    private static final String DEFAULT_USER = "postgres";
+    private static final String DEFAULT_PASSWORD = "password";
 
     public static Connection getConnection() throws SQLException {
-        String url = envOrDefault("DB_URL", DEFAULT_URL);
-        String user = envOrDefault("DB_USER", DEFAULT_USER);
-        String password = envOrDefault("DB_PASSWORD", DEFAULT_PASSWORD);
-        return DriverManager.getConnection(url, user, password);
-    }
+        String url = System.getenv().getOrDefault("DB_URL", DEFAULT_URL);
+        String user = System.getenv().getOrDefault("DB_USER", DEFAULT_USER);
+        String password = System.getenv().getOrDefault("DB_PASSWORD", DEFAULT_PASSWORD);
 
-    private static String envOrDefault(String name, String fallback) {
-        String value = System.getenv(name);
-        return value != null ? value : fallback;
+        return DriverManager.getConnection(url, user, password);
     }
 }
